@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-  "requests-html",
-  "click"
+  "setuptools>=42",
+  "wheel"
 ]
 build-backend = "setuptools.build_meta"
