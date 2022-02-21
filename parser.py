@@ -1,10 +1,11 @@
 from requests_html import HTMLSession  
+from subprocess import run
+from pathlib import Path
 
 class JapaneseAsmr:
   headers = {
     "accept": "*/*",
     "accept-language": "en-US,en;q=0.9,ja;q=0.8",
-    "range": "bytes=1572864-",
     "sec-ch-ua": "\" Not A;Brand\";v=\"99\", \"Chromium\";v=\"98\", \"Google Chrome\";v=\"98\"",
     "sec-ch-ua-mobile": "?0",
     "sec-ch-ua-platform": "\"Windows\"",
@@ -47,5 +48,21 @@ class JapaneseAsmr:
   def download_image(self, path):
     self._download_thing(self.image, path)
 
-  
+  def render_video(self, output=""):
+    if output == "":
+      output = self.title
+    if not output.endswith('.mp4'):
+      output += '.mp4'
+
+    audio_path = "audio.tmp.mp3"
+    image_path = "image.tmp.jpg"
+    
+    self.download_audio(audio_path)
+    self.download_image(image_path)
+    
+    ffmpeg_command = f"ffmpeg -i {audio_path} -framerate 1 -loop 1 -i {image_path} -map 0:a -map 1:v -c:v libx264 -preset ultrafast -crf 30 -c:a copy -pix_fmt yuv420p -y -shortest output.mp4"
+    run(ffmpeg_command, shell=True, check=True)
+    
+    Path(audio_path).unlink()
+    Path(image_path).unlink()
     
