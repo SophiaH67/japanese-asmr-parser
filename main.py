@@ -1,5 +1,5 @@
 import click
-from parser import JapaneseAsmr
+from src.japanese_asmr.parser import JapaneseAsmr
 
 @click.command()
 @click.argument('url')
