@@ -56,6 +56,9 @@ class JapaneseAsmr:
       output += self.title
     if not output.endswith('.mp4'):
       output += '.mp4'
+    # Clean output path
+    output = output.replace('/', '_')
+    output = output.replace('\\', '_')
 
     audio_path = f"audio.{randint(1, 999999)}.tmp.mp3"
     image_path = f"image.{randint(1, 999999)}.tmp.jpg"
