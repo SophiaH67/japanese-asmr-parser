@@ -1,6 +1,7 @@
 from requests_html import HTMLSession  
 from subprocess import run
 from pathlib import Path
+from random import randint
 
 class JapaneseAsmr:
   headers = {
@@ -56,8 +57,8 @@ class JapaneseAsmr:
     if not output.endswith('.mp4'):
       output += '.mp4'
 
-    audio_path = "audio.tmp.mp3"
-    image_path = "image.tmp.jpg"
+    audio_path = f"audio.{randint(1, 999999)}.tmp.mp3"
+    image_path = f"image.{randint(1, 999999)}.tmp.jpg"
     
     self.download_audio(audio_path)
     self.download_image(image_path)
