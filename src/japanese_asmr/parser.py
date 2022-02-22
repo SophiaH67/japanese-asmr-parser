@@ -63,7 +63,7 @@ class JapaneseAsmr:
     self.download_audio(audio_path)
     self.download_image(image_path)
     
-    ffmpeg_command = f"ffmpeg -i {audio_path} -framerate 1 -loop 1 -i {image_path} -map 0:a -map 1:v -c:v libx264 -preset ultrafast -crf 30 -c:a copy -pix_fmt yuv420p -y -shortest output.mp4"
+    ffmpeg_command = f"ffmpeg -i {audio_path} -framerate 1 -loop 1 -i {image_path} -map 0:a -map 1:v -c:v libx264 -preset ultrafast -crf 30 -c:a copy -pix_fmt yuv420p -y -shortest {output}"
     run(ffmpeg_command, shell=True, check=True)
     
     Path(audio_path).unlink()
