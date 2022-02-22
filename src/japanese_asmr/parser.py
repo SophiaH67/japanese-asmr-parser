@@ -51,6 +51,8 @@ class JapaneseAsmr:
   def render_video(self, output=""):
     if output == "":
       output = self.title
+    if output.endswith('/'):
+      output += self.title
     if not output.endswith('.mp4'):
       output += '.mp4'
 
