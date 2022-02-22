@@ -51,14 +51,11 @@ class JapaneseAsmr:
 
   def render_video(self, output=""):
     if output == "":
-      output = self.title
+      output = self.title.replace('/', '_').replace('\\', '_')
     if output.endswith('/'):
-      output += self.title
+      output += self.title.replace('/', '_').replace('\\', '_')
     if not output.endswith('.mp4'):
       output += '.mp4'
-    # Clean output path
-    output = output.replace('/', '_')
-    output = output.replace('\\', '_')
 
     audio_path = f"audio.{randint(1, 999999)}.tmp.mp3"
     image_path = f"image.{randint(1, 999999)}.tmp.jpg"
