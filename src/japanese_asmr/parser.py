@@ -31,7 +31,13 @@ class JapaneseAsmr:
   
   @property
   def image(self):
-    return self.html.find('img.fotorama__img')[-2].attrs['src']
+    images = self.html.find('img.fotorama__img')
+    if len(images) > 1:
+      return images[-2].attrs['src']
+    elif len(images) > 0:
+      return images[0].attrs['src']
+    else:
+      return self.html.find('img.lazy', first=True).attrs['src']
   
   @property
   def audio(self):
