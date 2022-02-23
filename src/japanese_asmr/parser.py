@@ -25,6 +25,7 @@ class JapaneseAsmr:
     self.response = self.session.get(self.url)
     self.response.html.render()
     self.html = self.response.html
+    self.headers["Referer"] = self.url
 
   @property
   def title(self):
