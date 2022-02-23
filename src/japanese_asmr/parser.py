@@ -2,6 +2,7 @@ from requests_html import HTMLSession
 from subprocess import run
 from pathlib import Path
 from random import randint
+import threading
 
 class JapaneseAsmr:
   headers = {
@@ -16,7 +17,7 @@ class JapaneseAsmr:
     "Referer": "https://japaneseasmr.com/39993/",
     "Referrer-Policy": "no-referrer-when-downgrade"
   }
-  
+
   def __init__(self, url):
     self.url = url
     
@@ -24,11 +25,11 @@ class JapaneseAsmr:
     self.response = self.session.get(self.url)
     self.response.html.render()
     self.html = self.response.html
-  
+
   @property
   def title(self):
     return self.html.find('title', first=True).text.replace(' – Japanese ASMR', '')
-  
+
   @property
   def image(self):
     images = self.html.find('img.fotorama__img')
@@ -38,20 +39,31 @@ class JapaneseAsmr:
       return images[0].attrs['src']
     else:
       return self.html.find('img.lazy', first=True).attrs['src']
-  
+
   @property
   def audio(self):
-    return self.html.find('audio > source')[0].attrs['src']
-  
+    return [element.attrs['src'] for element in self.html.find('audio > source')]
+
   def _download_thing(self, thing, path):
     with self.session.get(thing, headers=self.headers, stream=True) as thing_stream:
       with open(path, 'wb') as f:
         for chunk in thing_stream.iter_content(chunk_size=1024):
           f.write(chunk)
-  
+
   def download_audio(self, path):
-    self._download_thing(self.audio, path)
-  
+    paths = []
+    threads = []
+    for i, audio in enumerate(self.audio):
+      paths.append(f"{path[:-4]}.{i}.mp3")
+      # self._download_thing(audio, paths[i])
+      t = threading.Thread(target=self._download_thing, args=(audio, paths[i]))
+      threads.append(t)
+      t.daemon = True
+      t.start()
+    for t in threads:
+      t.join()
+    return paths
+
   def download_image(self, path):
     self._download_thing(self.image, path)
 
@@ -65,13 +77,13 @@ class JapaneseAsmr:
 
     audio_path = f"audio.{randint(1, 999999)}.tmp.mp3"
     image_path = f"image.{randint(1, 999999)}.tmp.jpg"
-    
-    self.download_audio(audio_path)
+
+    audio_files = self.download_audio(audio_path)
     self.download_image(image_path)
-    
-    ffmpeg_command = f"ffmpeg -i {audio_path} -framerate 1 -loop 1 -i {image_path} -map 0:a -map 1:v -c:v libx264 -preset ultrafast -crf 30 -c:a copy -pix_fmt yuv420p -y -shortest \"{output}\""
-    run(ffmpeg_command, shell=True, check=True)
-    
-    Path(audio_path).unlink()
+
+    for i, audio_file in enumerate(audio_files):
+      ffmpeg_command = f"ffmpeg -i {audio_file} -framerate 1 -loop 1 -i {image_path} -map 0:a -map 1:v -c:v libx264 -preset ultrafast -crf 30 -c:a copy -pix_fmt yuv420p -y -shortest \"{output[:-4]}.{i+1}.mp4\""
+      run(ffmpeg_command, shell=True, check=True)
+      Path(audio_file).unlink()
+
     Path(image_path).unlink()
-    
