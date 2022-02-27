@@ -3,6 +3,7 @@ from subprocess import run
 from pathlib import Path
 from random import randint
 import threading
+import os
 
 class JapaneseAsmr:
   headers = {
@@ -70,9 +71,18 @@ class JapaneseAsmr:
 
   def render_video(self, output=""):
     if output == "":
-      output = self.title.replace('/', '_').replace('\\', '_')
+      output = "./"
     if output.endswith('/'):
-      output += self.title.replace('/', '_').replace('\\', '_')
+      illegal_characters_linux = ['/', '\\', '"']
+      illegal_characters_windows = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+      if os.name == 'nt':
+        illegal_characters = illegal_characters_windows
+      else:
+        illegal_characters = illegal_characters_linux
+      clean_title = self.title
+      for c in illegal_characters:
+        clean_title = clean_title.replace(c, '_')
+      output += clean_title
     if not output.endswith('.mp4'):
       output += '.mp4'
 
